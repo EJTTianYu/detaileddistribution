@@ -18,7 +18,7 @@
 
 using namespace ROCKSDB_NAMESPACE;
 struct io_uring *ioring = nullptr;
-int loop = 5;
+int loop = 1;
 std::string kDBPath = "/tmp/rocksdb_simple_example";
 DB *db;
 
@@ -61,11 +61,28 @@ async_result async_test() {
     co_return s;
 }
 
+Status normal_test() {
+    //    std::string key, value;
+    std::string res;
+//    std::cin >> key;
+//    std::cin >> value;
+    auto result = db->Put(WriteOptions(), db->DefaultColumnFamily(), "test", "abc");
+    Status s = db->Get(ReadOptions(), db->DefaultColumnFamily(), "test", &res);
+    assert(s.ok());
+    std::cout << res << std::endl;
+    return s;
+}
+
+
 int main(int argc, char *argv[]) {
 
     open_database();
     for (int i = 0; i < loop; ++i) {
-        auto result = async_test();
+        if (*argv[1] == 'a') {
+            auto result = async_test();
+        } else {
+            auto result = normal_test();
+        }
 //        while(!result.is_result_set()) {
 //            std::this_thread::sleep_for(std::chrono::seconds(1));
 //        }
