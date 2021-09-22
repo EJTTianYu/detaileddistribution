@@ -16,6 +16,8 @@
 #include "executor.h"
 #include "placement_strategy.h"
 
+using namespace ROCKSDB_NAMESPACE;
+struct io_uring *ioring = nullptr;
 int loop = 5;
 std::string kDBPath = "/tmp/rocksdb_simple_example";
 DB *db;
@@ -53,7 +55,7 @@ async_result async_test() {
     std::cin >> value;
     auto result = db->AsyncPut(WriteOptions(), db->DefaultColumnFamily(), key, value);
     co_await result;
-    s = db->Get(ReadOptions(), db->DefaultColumnFamily(), key, &res);
+    Status s = db->Get(ReadOptions(), db->DefaultColumnFamily(), key, &res);
     assert(s.ok());
     std::cout << res << std::endl;
     co_return s;
