@@ -49,13 +49,13 @@ void close_database() {
 }
 
 async_result async_test() {
-    std::string key, value;
+//    std::string key, value;
     std::string res;
-    std::cin >> key;
-    std::cin >> value;
-    auto result = db->AsyncPut(WriteOptions(), db->DefaultColumnFamily(), key, value);
+//    std::cin >> key;
+//    std::cin >> value;
+    auto result = db->AsyncPut(WriteOptions(), db->DefaultColumnFamily(), "test", "abc");
     co_await result;
-    Status s = db->Get(ReadOptions(), db->DefaultColumnFamily(), key, &res);
+    Status s = db->Get(ReadOptions(), db->DefaultColumnFamily(), "test", &res);
     assert(s.ok());
     std::cout << res << std::endl;
     co_return s;
