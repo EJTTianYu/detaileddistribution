@@ -66,10 +66,11 @@ int main(int argc, char *argv[]) {
     open_database();
     for (int i = 0; i < loop; ++i) {
         auto result = async_test();
-        while(!result.is_result_set()) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
+//        while(!result.is_result_set()) {
+//            std::this_thread::sleep_for(std::chrono::seconds(1));
+//        }
     }
+    std::this_thread::sleep_for (std::chrono::seconds(20));
     close_database();
 
 }
