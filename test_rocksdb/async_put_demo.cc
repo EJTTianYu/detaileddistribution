@@ -93,7 +93,7 @@ static void reap_iouring_completion(struct io_uring *ring) {
 int main(int argc, char *argv[]) {
     // init ioring and start a thread
     ioring = new io_uring();
-    io_uring_queue_init(RingSize, ioring, 0);
+    io_uring_queue_init(loop, ioring, 0);
     std::thread t1(reap_iouring_completion, ioring);
     t1.join();
     // start insert key and read test
