@@ -75,7 +75,7 @@ Status normal_test() {
     return s;
 }
 
-static void reap_iouring_completion(struct io_uring *ring, std::string partition_id, Executor *executor) {
+static void reap_iouring_completion(struct io_uring *ring) {
     struct io_uring_cqe *cqe;
     while (true) {
         auto ret = io_uring_wait_cqe(ring, &cqe);
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
     // init ioring and start a thread
     ioring = new io_uring();
     io_uring_queue_init(RingSize, ioring, 0);
-    std::thread t1(reap_iouring_completion, ioring, partition_id, executor.get());
+    std::thread t1(reap_iouring_completion, ioring);
     t1.join();
     // start insert key and read test
     open_database();
