@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
     ioring = new io_uring();
     io_uring_queue_init(loop, ioring, 0);
     std::thread t1(reap_iouring_completion, ioring);
-    t1.join();
+    t1.detach();
     // start insert key and read test
     open_database();
     for (int i = 0; i < loop; ++i) {
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 //            std::this_thread::sleep_for(std::chrono::seconds(1));
 //        }
     }
-    std::this_thread::sleep_for(std::chrono::seconds(20));
+    std::this_thread::sleep_for(std::chrono::seconds(30));
     close_database();
 
 }
