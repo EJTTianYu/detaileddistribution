@@ -17,6 +17,7 @@
 #include "placement_strategy.h"
 
 using namespace ROCKSDB_NAMESPACE;
+
 struct io_uring *ioring = nullptr;
 int loop = 1;
 std::string kDBPath = "/tmp/rocksdb_simple_example";
@@ -55,6 +56,7 @@ async_result async_test() {
 //    std::cin >> value;
     auto result = db->AsyncPut(WriteOptions(), db->DefaultColumnFamily(), "test", "abc");
     co_await result;
+    std::cout << "resume result, done" << std::endl;
     Status s = db->Get(ReadOptions(), db->DefaultColumnFamily(), "test", &res);
     assert(s.ok());
     std::cout << res << std::endl;
@@ -62,7 +64,7 @@ async_result async_test() {
 }
 
 Status normal_test() {
-    //    std::string key, value;
+//    std::string key, value;
     std::string res;
 //    std::cin >> key;
 //    std::cin >> value;
@@ -73,9 +75,28 @@ Status normal_test() {
     return s;
 }
 
+static void reap_iouring_completion(struct io_uring *ring, std::string partition_id, Executor *executor) {
+    struct io_uring_cqe *cqe;
+    while (true) {
+        auto ret = io_uring_wait_cqe(ring, &cqe);
+        if (ret == 0 && cqe->res >= 0) {
+            struct file_page *rdata = (file_page *) io_uring_cqe_get_data(cqe);
+            io_uring_cqe_seen(ring, cqe);
+
+            auto h = std::coroutine_handle<async_result::promise_type>::from_promise(*rdata->promise);
+            h.resume();
+            return;
+        }
+    }
+}
 
 int main(int argc, char *argv[]) {
-
+    // init ioring and start a thread
+    ioring = new io_uring();
+    io_uring_queue_init(RingSize, ioring, 0);
+    std::thread t1(reap_iouring_completion, ioring, partition_id, executor.get());
+    t1.join();
+    // start insert key and read test
     open_database();
     for (int i = 0; i < loop; ++i) {
         if (*argv[1] == 'a') {
@@ -87,7 +108,7 @@ int main(int argc, char *argv[]) {
 //            std::this_thread::sleep_for(std::chrono::seconds(1));
 //        }
     }
-    std::this_thread::sleep_for (std::chrono::seconds(20));
+    std::this_thread::sleep_for(std::chrono::seconds(20));
     close_database();
 
 }
