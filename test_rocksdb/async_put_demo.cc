@@ -19,6 +19,7 @@
 using namespace ROCKSDB_NAMESPACE;
 
 struct io_uring *ioring = nullptr;
+bool debug_mode = false;
 int loop = 1;
 std::string kDBPath = "/tmp/rocksdb_simple_example";
 DB *db;

@@ -19,6 +19,7 @@
 using namespace dd;
 
 struct io_uring *ioring = nullptr;
+bool debug_mode = false;
 
 const int BILLION = 1000000000L;
 using namespace ROCKSDB_NAMESPACE;
