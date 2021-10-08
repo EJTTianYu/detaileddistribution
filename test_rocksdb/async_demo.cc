@@ -19,6 +19,7 @@
 using namespace dd;
 
 struct io_uring *ioring = nullptr;
+bool debug_mode = false;
 
 const int BILLION = 1000000000L;
 using namespace ROCKSDB_NAMESPACE;
@@ -78,7 +79,7 @@ static void reap_iouring_completion(struct io_uring *ring, std::string partition
   while (true) {
     auto ret = io_uring_wait_cqe(ring, &cqe);
     if (ret == 0 && cqe->res >=0) {
-      struct file_read_page *rdata =(file_read_page *)io_uring_cqe_get_data(cqe);
+      struct file_page *rdata =(file_page *)io_uring_cqe_get_data(cqe);
       io_uring_cqe_seen(ring, cqe);
 
       auto h = std::coroutine_handle<async_result::promise_type>::from_promise(*rdata->promise);
